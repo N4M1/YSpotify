@@ -1,22 +1,25 @@
 {
-  "users": [
+  "user": [
     {
-      "user": "admin",
-      "admin": true,
-      "id": 777,
-      "password": "isadmin"
+      "id": 1,
+      "local_user": "admin",
+      "local_password": "isadmin",
+      "spotify_user": "admin",
+      "spotify_password": "isadmin"
     },
     {
-      "user": "bob",
-      "admin": false,
-      "id": 123,
-      "password": "isbob"
+      "id": 2,
+      "local_user": "Singe",
+      "local_password": "isamonkey",
+      "spotify_user": "monkey",
+      "spotify_password": "isamonkey"
     },
     {
-      "user": "alice",
-      "admin": false,
-      "id": 321,
-      "password": "isalice"
+      "id": 3,
+      "local_user": "trotro",
+      "local_password": "isfranklin",
+      "spotify_user": "trotro",
+      "spotify_password": "isfranklin"
     }
   ]
 }
