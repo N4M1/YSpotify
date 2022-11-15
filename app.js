@@ -1,7 +1,6 @@
 const express = require('express');
 const Crypto = require('crypto');
 const { required } = require('nodemon/lib/config');
-import json from "./users.json";
 
 let app = express();
 
