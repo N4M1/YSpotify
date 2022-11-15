@@ -19,19 +19,6 @@ Pull requests
 15
 Zenhub
 Actions
-Projects
-Wiki
-Security
-Insights
-web-api-auth-examples/authorization_code/public/index.html
-@Woodahs
-Woodahs Removed unnecessary ">" sign for refresh token
-…
-Latest commit 8e5159f on Jul 5, 2017
- History
- 5 contributors
-@JMPerez@dijonkitchen@Woodahs@thelinmichael@cedmax
-142 lines (128 sloc)  4.72 KB
 
 <!doctype html>
 <html>
@@ -170,7 +157,7 @@ Latest commit 8e5159f on Jul 5, 2017
             });
           }, false);
         }
-      })();
+      )();
     </script>
   </body>
 </html>
