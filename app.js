@@ -5,6 +5,7 @@ const fs = require('fs');
 let querystring = require('querystring');
 const jwt = require('jsonwebtoken');
 const users = require('./users.json');
+const {stringify} = require("nodemon/lib/utils");
 
 const app = express();
 
@@ -39,6 +40,42 @@ app.get('/login', (req, res) => {
     }
 
     res.status(401).send('Unauthorized');
+});
+
+app.get('/sign', (req, res) => {
+    const auth = req.header('Authorization');
+
+    const isBasicAuth = auth && auth.startsWith('Basic ');
+    if (!isBasicAuth) {
+        res.status(401).send('Unauthorized');
+        return;
+    }
+
+    const credentials = auth.split(' ')[1];
+    const raw = Buffer.from(credentials, 'base64').toString('utf8');
+    const [local_username, local_password] = raw.split(':');
+    let ID = 0;
+    for (const user of users) {
+        ID = user.id;
+    }
+    ID++;
+    let data = {
+        "id": ID,
+        "local_user": local_username,
+        "local_password": local_password,
+        "spotify_user": "",
+        "spotify_password": ""
+    }
+
+    users.push(data);
+
+    users.forEach(function (item, index) {
+        fs.writeFile('users.json', JSON.stringify(users), function (err) {
+            if (err) return console.log(err);
+        });
+    });
+
+    res.status(401).send('Nice');
 });
 
 app.listen(8888);

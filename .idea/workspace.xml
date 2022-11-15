@@ -2,7 +2,6 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="0112367e-3921-48af-a28d-9f08d5ea0d65" name="Changes" comment="">
-      <change beforePath="$PROJECT_DIR$/.gitignore" beforeDir="false" afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/app.js" beforeDir="false" afterPath="$PROJECT_DIR$/app.js" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/users.json" beforeDir="false" afterPath="$PROJECT_DIR$/users.json" afterDir="false" />
@@ -46,6 +45,7 @@
     "javascript.nodejs.core.library.typings.version": "18.11.9",
     "last_opened_file_path": "C:/Users/Kevin/Desktop/Ydays Project",
     "nodejs_package_manager_path": "npm",
+    "run.code.analysis.last.selected.profile": "pProject Default",
     "settings.editor.selected.configurable": "preferences.editor"
   }
 }]]></component>
@@ -73,7 +73,7 @@
       <workItem from="1667896417207" duration="2325000" />
       <workItem from="1667902041681" duration="3881000" />
       <workItem from="1667982562772" duration="23000" />
-      <workItem from="1668499710175" duration="7322000" />
+      <workItem from="1668499710175" duration="9797000" />
     </task>
     <servers />
   </component>

@@ -19,5 +19,12 @@
     "local_password": "isfranklin",
     "spotify_user": "trotro",
     "spotify_password": "isfranklin"
+  },
+  {
+    "id": 3,
+    "local_user": "salondethe",
+    "local_password": "salondethe",
+    "spotify_user": "",
+    "spotify_password": ""
   }
 ]
