@@ -1,25 +1,23 @@
-{
-  "user": [
-    {
-      "id": 1,
-      "local_user": "admin",
-      "local_password": "isadmin",
-      "spotify_user": "admin",
-      "spotify_password": "isadmin"
-    },
-    {
-      "id": 2,
-      "local_user": "Singe",
-      "local_password": "isamonkey",
-      "spotify_user": "monkey",
-      "spotify_password": "isamonkey"
-    },
-    {
-      "id": 3,
-      "local_user": "trotro",
-      "local_password": "isfranklin",
-      "spotify_user": "trotro",
-      "spotify_password": "isfranklin"
-    }
-  ]
-}
+[
+  {
+    "id": 0,
+    "local_user": "admin",
+    "local_password": "isadmin",
+    "spotify_user": "admin",
+    "spotify_password": "isadmin"
+  },
+  {
+    "id": 1,
+    "local_user": "Singe",
+    "local_password": "isamonkey",
+    "spotify_user": "monkey",
+    "spotify_password": "isamonkey"
+  },
+  {
+    "id": 2,
+    "local_user": "trotro",
+    "local_password": "isfranklin",
+    "spotify_user": "trotro",
+    "spotify_password": "isfranklin"
+  }
+]

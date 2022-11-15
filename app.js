@@ -2,70 +2,44 @@ const express = require('express');
 const Crypto = require('crypto');
 const { required } = require('nodemon/lib/config');
 const fs = require('fs');
-
+let querystring = require('querystring');
+const jwt = require('jsonwebtoken');
+const users = require('./users.json');
 
 const app = express();
 
-//--------------------Function-------------------------
+app.get('/login', (req, res) => {
+    const auth = req.header('Authorization');
 
-let User =
-    {
-        "id": String,
-        "local-user": String,
-        "local-password": String,
-        "spotify-user": String,
-        "spotify-password": String
-    };
-
-//--------------------Interaction-------------------------
-
-app.get('/login', function(req, res) {
-
-    let local_user = req.query.username || null;
-    let local_password = req.query.password || null;
-
-    let code = req.query.code || null;
-    let state = req.query.state || null;
-
-    if (state === null) {
-        res.redirect('/#' +
-            querystring.stringify({
-                error: 'state_mismatch'
-            }));
-    } else {
-        let authOptions = {
-            url: 'https://localhost:8888/login',
-            form: {
-                code: code,
-                redirect_uri: redirect_uri,
-                grant_type: 'authorization_code'
-            },
-            headers: {
-                'Authorization': 'Basic ' + Buffer.from((client_id + ':' + client_secret).toString('base64'))
-            },
-            json: true
-        };
+    const isBasicAuth = auth && auth.startsWith('Basic ');
+    if (!isBasicAuth) {
+        res.status(401).send('Unauthorized');
+        return;
     }
 
-});
+    const credentials = auth.split(' ')[1];
+    const raw = Buffer.from(credentials, 'base64').toString('utf8');
+    const [local_username, local_password] = raw.split(':');
 
-console.log('Listening on 8888');
-fs.readFile('./users.json', 'utf8', (err, data) => {
-    if (err) {
-        console.log(`Error reading file from disk: ${err}`)
-    } else {
-        // parse JSON string to JSON object
-        let users = [];
+    for (const user of users) {
+        if (user.local_user === local_username && user.local_password === local_password) {
 
-        users= new Array(JSON.parse(data));
-
-        // print all databases
-        if(Array.isArray(users)) {
-            console.log("Let's go");
-            users.forEach(user => {
-                console.log(user.id);
-            })
+            const token = jwt.sign(
+                {
+                    sub: user.id,
+                    local_user: user.local_user,
+                    local_password: user.local_password
+                },
+                'secret',
+                {expiresIn: '1 day'}
+            );
+            res.json({token});
+            return;
         }
     }
+
+    res.status(401).send('Unauthorized');
 });
+
 app.listen(8888);
+console.log('Listening on 8888');
