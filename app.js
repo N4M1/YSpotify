@@ -64,7 +64,8 @@ app.get('/sign', (req, res) => {
         "local_user": local_username,
         "local_password": local_password,
         "spotify_user": "",
-        "spotify_password": ""
+        "spotify_password": "",
+        "group": ""
     }
 
     users.push(data);
