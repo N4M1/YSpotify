@@ -14,7 +14,7 @@ app.get('/login', (req, res) => {
 
     const isBasicAuth = auth && auth.startsWith('Basic ');
     if (!isBasicAuth) {
-        res.status(401).send('Unauthorized');
+        res.status(401).send('Unauthorized Authorization header is missing');
         return;
     }
 
@@ -23,7 +23,8 @@ app.get('/login', (req, res) => {
     const [local_username, local_password] = raw.split(':');
 
     for (const user of users) {
-        if (user.local_user === local_username && user.local_password === local_password) {
+        let temp_local_password = Crypto.createHash('SHA256').update(local_password).digest('hex');
+        if (user.local_user === local_username && user.local_password === temp_local_password) {
 
             const token = jwt.sign(
                 {
@@ -39,11 +40,12 @@ app.get('/login', (req, res) => {
         }
     }
 
-    res.status(401).send('Unauthorized');
+    res.status(401).send('Unauthorized Invalid username or password');
 });
 
 app.get('/sign', (req, res) => {
     const auth = req.header('Authorization');
+    let Exit = false;
 
     const isBasicAuth = auth && auth.startsWith('Basic ');
     if (!isBasicAuth) {
@@ -53,30 +55,47 @@ app.get('/sign', (req, res) => {
 
     const credentials = auth.split(' ')[1];
     const raw = Buffer.from(credentials, 'base64').toString('utf8');
-    const [local_username, local_password] = raw.split(':');
-    let ID = 0;
+    let [local_username, local_password] = raw.split(':');
+
+    local_username.toLowerCase();
+
     for (const user of users) {
-        ID = user.id;
-    }
-    ID++;
-    let data = {
-        "id": ID,
-        "local_user": local_username,
-        "local_password": local_password,
-        "spotify_user": "",
-        "spotify_password": "",
-        "group": ""
-    }
 
-    users.push(data);
+        if (local_username === user.local_user.toLowerCase()) {
+            res.status(200).send('User Already Exists');
+            Exit = true;
+            return;
+        }
+    }
+    if (Exit == true) {
+        return;
+    }
+    else {
+        local_password = Crypto.createHash('SHA256').update(local_password).digest('hex');
+        let ID = 0;
+        for (const user of users) {
+            ID = user.id;
+        }
+        ID++;
+        let data = {
+            "id": ID,
+            "local_user": local_username,
+            "local_password": local_password,
+            "spotify_user": "",
+            "spotify_password": "",
+            "group": ""
+        }
 
-    users.forEach(function (item, index) {
-        fs.writeFile('users.json', JSON.stringify(users), function (err) {
-            if (err) return console.log(err);
+        users.push(data);
+
+        users.forEach(function (item, index) {
+            fs.writeFile('users.json', JSON.stringify(users), function (err) {
+                if (err) return console.log(err);
+            });
         });
-    });
 
-    res.status(401).send('Nice');
+        res.status(401).send('Nice');
+    }
 });
 
 app.listen(8888);

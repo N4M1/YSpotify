@@ -30,5 +30,13 @@
     "spotify_user": "",
     "spotify_password": "",
     "group": ""
+  },
+  {
+    "id": 4,
+    "local_user": "NewUser",
+    "local_password": "7216b742d96929d1dc93831c3cd5daff41dd92020470860fa032a789bb0e747a",
+    "spotify_user": "",
+    "spotify_password": "",
+    "group": ""
   }
 ]
