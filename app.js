@@ -6,7 +6,7 @@ let querystring = require('querystring');
 const jwt = require('jsonwebtoken');
 const users = require('./users.json');
 const {stringify} = require("nodemon/lib/utils");
-
+const redirect_uri = 'http://localhost:8888/callback/';
 const app = express();
 
 app.get('/login', (req, res) => {
@@ -97,6 +97,61 @@ app.get('/sign', (req, res) => {
         res.status(401).send('Nice');
     }
 });
+
+app.get("/auth-url", (req, res) => {
+    const auth = req.header('Authorization');
+
+    const isBasicAuth = auth && auth.startsWith('Basic ');
+    if (!isBasicAuth) {
+        res.status(401).send('Unauthorized Authorization header is missing');
+        return;
+    }
+    const scope = 'user-read-private user-read-email user-read-recently-played';
+
+    const credentials = auth.split(' ')[1];
+    const raw = Buffer.from(credentials, 'base64').toString('utf8');
+    const [spotify_id, spotify_secret] = raw.split(':');
+
+    res.redirect('https://accounts.spotify.com/authorize?' +
+        querystring.stringify({
+            response_type: 'code',
+            client_id: spotify_id,
+            scope: scope,
+            redirect_uri: redirect_uri,
+        }));
+});
+
+app.get('/callback', (req, res) => {
+    const code = req.query.code || null;
+
+    const credentials = auth.split(' ')[1];
+    const raw = Buffer.from(credentials, 'base64').toString('utf8');
+    const [spotify_id, spotify_secret] = raw.split(':');
+
+    const authOptions = {
+        url: 'https://accounts.spotify.com/api/token',
+        form: {
+            code: code,
+            redirect_uri: redirect_uri,
+            grant_type: 'authorization_code'
+        },
+        headers: {
+            'Authorization': 'Basic ' +
+                (Buffer.from(spotify_id + ':' + spotify_secret).toString('base64')),
+            'content-type': 'application/x-www-form-urlencoded'
+        },
+    };
+
+    axios.post(authOptions.url, authOptions.form, {
+        headers: authOptions.headers
+    }).then((response) => {
+        const data = response.data;
+        console.log(data);
+        res.json(data);
+    }).catch((err) => {
+        console.log(err)
+    });
+}); 
 
 app.listen(8888);
 console.log('Listening on 8888');
