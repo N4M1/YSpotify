@@ -33,7 +33,7 @@ app.get('/login', (req, res) => {
                     local_password: user.local_password
                 },
                 'secret',
-                {expiresIn: '1 day'}
+                {expiresIn: '1 hour'}
             );
             res.json({token});
             return;
