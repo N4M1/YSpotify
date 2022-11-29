@@ -5,8 +5,12 @@ const fs = require('fs');
 let querystring = require('querystring');
 const jwt = require('jsonwebtoken');
 const users = require('./users.json');
+let groups = require('./groups.json');
 const {stringify} = require("nodemon/lib/utils");
+const { group } = require('console');
+const { emit } = require('process');
 const redirect_uri = 'http://localhost:8888/callback/';
+
 const app = express();
 
 app.get('/login', (req, res) => {
@@ -33,7 +37,7 @@ app.get('/login', (req, res) => {
                     local_password: user.local_password
                 },
                 'secret',
-                {expiresIn: '1 day'}
+                {expiresIn: '1 hour'}
             );
             res.json({token});
             return;
@@ -82,8 +86,7 @@ app.get('/sign', (req, res) => {
             "local_user": local_username,
             "local_password": local_password,
             "spotify_user": "",
-            "spotify_password": "",
-            "group": ""
+            "spotify_password": ""
         }
 
         users.push(data);
@@ -97,61 +100,86 @@ app.get('/sign', (req, res) => {
         res.status(401).send('Nice');
     }
 });
-
-app.get("/auth-url", (req, res) => {
+app.get('/group',(req, res) =>{
     const auth = req.header('Authorization');
+    let Exit = false;
 
     const isBasicAuth = auth && auth.startsWith('Basic ');
     if (!isBasicAuth) {
-        res.status(401).send('Unauthorized Authorization header is missing');
+        res.status(401).send('Unauthorized');
         return;
     }
-    const scope = 'user-read-private user-read-email user-read-recently-played';
+    
+    // Ajout d'un groupe à un user s'il y n'en n'a pas 
+   
+        let token = req.query.token;
+        const base64String = token.split('.')[1];
+        const decodedValue = JSON.parse(Buffer.from(base64String,'base64').toString('ascii'));
 
-    const credentials = auth.split(' ')[1];
-    const raw = Buffer.from(credentials, 'base64').toString('utf8');
-    const [spotify_id, spotify_secret] = raw.split(':');
+        
+        //sup group
+        let temp_group =null;
+        for(const group of groups){
+            for(let i =0; i < group.users.length ; i++){
+                if (group.users[i] == decodedValue.local_user) {
+                    group.users[i] = null;
+                }
+            }
+            userTab = group.users;
+            group.users.push(userTab);
 
-    res.redirect('https://accounts.spotify.com/authorize?' +
-        querystring.stringify({
-            response_type: 'code',
-            client_id: spotify_id,
-            scope: scope,
-            redirect_uri: redirect_uri,
-        }));
+        }
+        for (const group of groups){
+            if (group.group_name == req.query.group) {
+                
+                group.users.push(decodedValue.local_user);
+                temp_group = group;
+            }
+        }
+        if (temp_group === null) {
+
+                let ID = 0;
+                for (const group of groups) {
+                    ID = group.id;
+                }
+                ID++;
+                let data = {
+                    "id": ID,
+                    "group_name": req.query.group,
+                    "admin":decodedValue.local_user,
+                    "users": [decodedValue.local_user]
+                }
+        
+                groups.push(data);
+                groups.forEach(function (item, index) {
+                    fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
+                        if (err) return console.log(err);
+                    });
+                });
+        
+                res.status(200).send('Groupe cree');
+            
+            
+        }
+        else{
+        //     res.status(200).send("groupe mise à jour");
+        //     groups.forEach(function (item, index) {
+        //     fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
+        //         if (err) return console.log(err);
+        //     });
+        // });
+        
+        //delete group
+ 
+        if (req.query.group !== null ) {
+            decodedValue.lo
+        }
+        
+        
+    }
+
 });
 
-app.get('/callback', (req, res) => {
-    const code = req.query.code || null;
-
-    const credentials = auth.split(' ')[1];
-    const raw = Buffer.from(credentials, 'base64').toString('utf8');
-    const [spotify_id, spotify_secret] = raw.split(':');
-
-    const authOptions = {
-        url: 'https://accounts.spotify.com/api/token',
-        form: {
-            code: code,
-            redirect_uri: redirect_uri,
-            grant_type: 'authorization_code'
-        },
-        headers: {
-            'Authorization': 'Basic ' +
-                (Buffer.from(spotify_id + ':' + spotify_secret).toString('base64')),
-            'content-type': 'application/x-www-form-urlencoded'
-        },
-    };
-
-    axios.post(authOptions.url, authOptions.form, {
-        headers: authOptions.headers
-    }).then((response) => {
-        const data = response.data;
-        console.log(data);
-        res.json(data);
-    }).catch((err) => {
-        console.log(err)
-    });
-}); 
 
 app.listen(8888);
 console.log('Listening on 8888');

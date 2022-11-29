@@ -1,0 +1,74 @@
+[
+    {
+        "id": 0,
+        "group_name": "groupe1",
+        "admin": "",
+        "users": [
+            "user1",
+            "user2"
+        ]
+    },
+    {
+        "id": 1,
+        "group_name": "groupe2",
+        "users": [
+            
+        ]
+    },
+    {
+        "id": 2,
+        "group_name": "groupe3",
+        "admin": "quentin",
+        "users": [
+
+        ]
+    },
+    {
+        "id": 3,
+        "group_name": "groupe4",
+        "admin": "quentin",
+        "users": [
+
+        ]
+    },
+    {
+        "id": 4,
+        "group_name": "groupe5",
+        "admin": "quentin",
+        "users": [
+           
+        ]
+    },
+    {
+        "id": 5,
+        "group_name": "groupe6",
+        "admin": "quentin",
+        "users": [
+
+        ]
+    },
+    {
+        "id": 6,
+        "group_name": "groupe7",
+        "admin": "quentin",
+        "users": [
+
+        ]
+    },
+    {
+        "id": 7,
+        "group_name": "groupe8",
+        "admin": "quentin",
+        "users": [
+
+        ]
+    },
+    {
+        "id": 8,
+        "group_name": "groupe9",
+        "admin": "quentin",
+        "users": [
+            
+        ]
+    }
+]
