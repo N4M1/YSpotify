@@ -5,7 +5,10 @@ const fs = require('fs');
 let querystring = require('querystring');
 const jwt = require('jsonwebtoken');
 const users = require('./users.json');
+const groups = require('./groups.json');
 const {stringify} = require("nodemon/lib/utils");
+const { group } = require('console');
+const { emit } = require('process');
 
 const app = express();
 
@@ -33,7 +36,7 @@ app.get('/login', (req, res) => {
                     local_password: user.local_password
                 },
                 'secret',
-                {expiresIn: '1 day'}
+                {expiresIn: '1 hour'}
             );
             res.json({token});
             return;
@@ -82,8 +85,7 @@ app.get('/sign', (req, res) => {
             "local_user": local_username,
             "local_password": local_password,
             "spotify_user": "",
-            "spotify_password": "",
-            "group": ""
+            "spotify_password": ""
         }
 
         users.push(data);
@@ -97,6 +99,82 @@ app.get('/sign', (req, res) => {
         res.status(401).send('Nice');
     }
 });
+app.get('/group',(req, res) =>{
+    const auth = req.header('Authorization');
+    let Exit = false;
+
+    const isBasicAuth = auth && auth.startsWith('Basic ');
+    if (!isBasicAuth) {
+        res.status(401).send('Unauthorized');
+        return;
+    }
+    
+    // Ajout d'un groupe à un user s'il y n'en n'a pas 
+   
+        let token = req.query.token;
+        const base64String = token.split('.')[1];
+        const decodedValue = JSON.parse(Buffer.from(base64String,'base64').toString('ascii'));
+
+        
+
+        let temp_group =null;
+        for (const group of groups){
+            if (group.group_name === req.query.group) {
+                
+                group.users.push(decodedValue.local_user);
+                temp_group = group;
+            }
+        }
+        if (temp_group == null) {
+
+                let ID = 0;
+                for (const group of groups) {
+                    ID = group.id;
+                }
+                ID++;
+                let data = {
+                    "id": ID,
+                    "group_name": req.query.group,
+                    "admin":decodedValue.local_user,
+                    "users": [decodedValue.local_user]
+                }
+        
+                groups.push(data);
+        
+                groups.forEach(function (item, index) {
+                    fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
+                        if (err) return console.log(err);
+                    });
+                });
+        
+                res.status(200).send('Groupe cree');
+            
+            
+        }
+        else{
+            res.status(200).send("groupe mise à jour");
+            groups.forEach(function (item, index) {
+            fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
+                if (err) return console.log(err);
+            });
+        });
+        //Join another group
+
+        if (group.users == decodedValue.local_user) {
+            if(s){
+                group.users = group.users.filter(
+                    (group) => group.users !== group.users 
+                );
+            }
+            
+        }
+        //delete group
+ 
+        
+    }
+
+});
+
 
 app.listen(8888);
 console.log('Listening on 8888');

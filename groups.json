@@ -1,0 +1,46 @@
+[
+    {
+        "id": 0,
+        "group_name": "groupe1",
+        "admin": "",
+        "users": [
+            "user1",
+            "user2",
+            "quentin",
+            "quentin"
+        ]
+    },
+    {
+        "id": 1,
+        "group_name": "groupe2",
+        "users": [
+            "quentin",
+            "quentin",
+            "quentin"
+        ]
+    },
+    {
+        "id": 2,
+        "group_name": "groupe3",
+        "admin": "quentin",
+        "users": [
+            "quentin",
+            "quentin",
+            "quentin",
+            "quentin",
+            "quentin",
+            "quentin"
+        ]
+    },
+    {
+        "id": 3,
+        "group_name": "groupe4",
+        "admin": "quentin",
+        "users": [
+            "quentin",
+            "quentin",
+            "quentin",
+            "quentin"
+        ]
+    }
+]
