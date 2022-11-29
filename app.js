@@ -5,7 +5,7 @@ const fs = require('fs');
 let querystring = require('querystring');
 const jwt = require('jsonwebtoken');
 const users = require('./users.json');
-const groups = require('./groups.json');
+let groups = require('./groups.json');
 const {stringify} = require("nodemon/lib/utils");
 const { group } = require('console');
 const { emit } = require('process');
@@ -116,16 +116,26 @@ app.get('/group',(req, res) =>{
         const decodedValue = JSON.parse(Buffer.from(base64String,'base64').toString('ascii'));
 
         
-
+        //sup group
         let temp_group =null;
+        for(const group of groups){
+            for(let i =0; i < group.users.length ; i++){
+                if (group.users[i] == decodedValue.local_user) {
+                    group.users[i] = null;
+                }
+            }
+            userTab = group.users;
+            group.users.push(userTab);
+
+        }
         for (const group of groups){
-            if (group.group_name === req.query.group) {
+            if (group.group_name == req.query.group) {
                 
                 group.users.push(decodedValue.local_user);
                 temp_group = group;
             }
         }
-        if (temp_group == null) {
+        if (temp_group === null) {
 
                 let ID = 0;
                 for (const group of groups) {
@@ -140,7 +150,6 @@ app.get('/group',(req, res) =>{
                 }
         
                 groups.push(data);
-        
                 groups.forEach(function (item, index) {
                     fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
                         if (err) return console.log(err);
@@ -152,24 +161,19 @@ app.get('/group',(req, res) =>{
             
         }
         else{
-            res.status(200).send("groupe mise à jour");
-            groups.forEach(function (item, index) {
-            fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
-                if (err) return console.log(err);
-            });
-        });
-        //Join another group
-
-        if (group.users == decodedValue.local_user) {
-            if(s){
-                group.users = group.users.filter(
-                    (group) => group.users !== group.users 
-                );
-            }
-            
-        }
+        //     res.status(200).send("groupe mise à jour");
+        //     groups.forEach(function (item, index) {
+        //     fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
+        //         if (err) return console.log(err);
+        //     });
+        // });
+        
         //delete group
  
+        if (req.query.group !== null ) {
+            decodedValue.lo
+        }
+        
         
     }
 
