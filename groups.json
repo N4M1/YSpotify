@@ -5,13 +5,16 @@
     "admin": "quentin",
     "users": [
       "user1",
-      "user2"
+      "user2",
+      "isadmin"
     ]
   },
   {
-    "id": 2,
-    "group_name": "groupe3",
-    "admin": null,
-    "users": []
+    "id": 1,
+    "group_name": "groupe12",
+    "admin": "isadmin",
+    "users": [
+      "isadmin"
+    ]
   }
 ]

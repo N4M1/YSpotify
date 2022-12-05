@@ -134,50 +134,69 @@ app.get('/group', (req, res) => {
 
         let temp_group = groups;
 
+
         let messageRetour = "";
 
         // creation du groupe et ajout du user
         let i = 0;
+        let data;
+        let onetime = false;
         for (const group of groups) {
-            if (temp_group[i].group_name == req.query.group) {
-                temp_group[i].users.splice(temp_group[i].users.length+1, 0 , decodedValue.local_user);
-                messageRetour = "Groupe mise à jour";
-            } else {
-                let ID = 0;
-                for (const group of groups) {
-                    ID = group.id;
-                }
-                ID++;
-                let data = {
-                    "id": ID,
-                    "group_name": req.query.group,
-                    "admin": decodedValue.local_user,
-                    "users": [decodedValue.local_user]
-                }
+            let verification = 0;
+            for (let j = 0; j < temp_group[i].users.length; j++) {
+                if (temp_group[i].group_name == req.query.group) {
+                    onetime = true;
+                    if(temp_group[i].users[j] == decodedValue.local_user) {
+                        verification++;
+                    }
+                } else if (onetime == false && temp_group[i].group_name != req.query.group) {
+                    let ID = 0;
+                    onetime = true;
+                    for (const group of groups) {
+                        ID = group.id;
+                    }
+                    ID++;
+                    data = {
+                        "id": ID,
+                        "group_name": req.query.group,
+                        "admin": decodedValue.local_user,
+                        "users": [decodedValue.local_user]
+                    }
 
-                temp_group.splice(temp_group.length + 1 , 0, data );
-
-                messageRetour = "Groupe crée";
+                    messageRetour = "Groupe crée";
+                }
             }
-
+            if (verification == 0 && onetime == true) {
+                temp_group[i].users.splice(temp_group[i].users.length, 0, decodedValue.local_user);
+                messageRetour = "Groupe mise à jour";
+            }
+            else if(onetime == true) {
+                messageRetour = "Vous êtes déjà dans ce groupe";
+            }
             i++;
         }
 
-        // supprimer le user de la liste des users
+        if(data != null){
+            temp_group.splice(temp_group.length , 0, data );
+        }
 
+
+        // supprimer le user de la liste des users
         for (let j = 0; j < temp_group.length; j++) {
-            for (let i = 0; i < temp_group[j].users.length; i++) {
-                if (temp_group[j].users[i] == decodedValue.local_user) {
-                    temp_group[j].users.splice(i, 1);
+            if(req.query.group != temp_group[j].group_name) {
+                for (let i = 0; i < temp_group[j].users.length; i++) {
+                    if (temp_group[j].users[i] == decodedValue.local_user) {
+                        temp_group[j].users.splice(i, 1);
+                    }
+                    if (temp_group[j].admin == decodedValue.local_user) {
+                        temp_group[j].admin = null;
+                    }
                 }
-                if (temp_group[j].admin == decodedValue.local_user) {
-                    temp_group[j].admin = null;
-                }
-            }
-            //supprimer group
-            for (const group of groups) {
-                if (group.users.length == 0) {
-                    temp_group.splice(group.id, 1);
+                //supprimer group
+                for (let j = 0; j < temp_group.length; j++) {
+                    if (temp_group[j].users.length == 0) {
+                        temp_group.splice(j, 1);
+                    }
                 }
             }
         }
