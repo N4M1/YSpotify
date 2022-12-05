@@ -125,13 +125,7 @@ app.get("/auth-url", (req, res) => {
 
 app.get('/group',(req, res) =>{
     const auth = req.header('Authorization');
-    let Exit = false;
 
-    const isBasicAuth = auth && auth.startsWith('Basic ');
-    /*if (!isBasicAuth) {
-        res.status(401).send('Unauthorized');
-        return;
-    }*/
     let token = req.query.token;
 
     if(token == null)
@@ -144,26 +138,32 @@ app.get('/group',(req, res) =>{
         const base64String = token.split('.')[1];
         const decodedValue = JSON.parse(Buffer.from(base64String,'base64').toString('ascii'));
 
+        // supprimer le user de la liste des users
+
         for(const group of groups){
             for(let i =0; i < group.users.length ; i++){
                 if (group.users[i] == decodedValue.local_user) {
                     group.users[i] = null;
+                }
+                if (group.admin == decodedValue.local_user) {
+                    group.admin = null;
                 }
             }
             let userTab = group.users;
             group.users.push(userTab);
 
         }
-        let temp_group = null;
+
+        // creation du groupe et ajout du user
+
+        let temp_group = groups;
+
         for (const group of groups){
             if (group.group_name == req.query.group) {
-
-                group.users.push(decodedValue.local_user);
-                temp_group = group;
+                temp_group.users += decodedValue.local_user;
+                res.status(200).send("Groupe mise à jour");
             }
-        }
-        if (temp_group === null) {
-
+            else if(group.group_name == null){
                 let ID = 0;
                 for (const group of groups) {
                     ID = group.id;
@@ -177,40 +177,26 @@ app.get('/group',(req, res) =>{
                 }
 
                 groups.push(data);
-                groups.forEach(function (item, index) {
-                    fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
-                        if (err) return console.log(err);
-                    });
-                });
 
                 res.status(200).send('Groupe crée');
-
-        }
-        else {
-                 res.status(200).send("Groupe mise à jour");
-                 groups.forEach(function (item, index) {
-                     fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
-                         if (err) return console.log(err);
-                 });
-             });
-
-            //delete group
-
-            if (req.query.group !== null) {
-                for (const group of groups) {
-                    for(let i = 0; i < group.users.length; i++) {
-                        if (group.users[i] == decodedValue.local_user) {
-                            group.users[i] = null;
-                        }
-                        if(group.admin == decodedValue.local_user)
-                        {
-                            group.admin = null;
-                        }
-                    }
-                }
             }
         }
-    }});
+
+        //supprimer group
+
+        for(const group of groups){
+            if (group.users.length == 0) {
+                temp_group.group[group.id] = null;
+            }
+        }
+
+        temp_group.forEach(function (item, index) {
+            fs.writeFile('groups.json', JSON.stringify(temp_group), function (err) {
+                if (err) return console.log(err);
+            });
+        });
+
+}});
 
 
 app.get('/callback', (req, res) => {
