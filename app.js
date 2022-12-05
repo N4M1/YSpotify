@@ -72,8 +72,7 @@ app.get('/sign', (req, res) => {
     }
     if (Exit == true) {
         return;
-    }
-    else {
+    } else {
         local_password = Crypto.createHash('SHA256').update(local_password).digest('hex');
         let ID = 0;
         for (const user of users) {
@@ -104,10 +103,10 @@ app.get('/sign', (req, res) => {
 app.get("/auth-url", (req, res) => {
     let decode = jwt.verify(req.query.token, 'secret');
     for (const user of users) {
-        if(decode.local_user === user.local_user)
+        if (decode.local_user === user.local_user)
             local_user = user;
     }
-    if(!local_user.spotify_id == '') {
+    if (!local_user.spotify_id == '') {
         const scope = 'user-read-private user-read-email user-read-recently-played';
         res.redirect('https://accounts.spotify.com/authorize?' +
             querystring.stringify({
@@ -116,38 +115,34 @@ app.get("/auth-url", (req, res) => {
                 scope: scope,
                 redirect_uri: redirect_uri,
             }));
-    }
-    else
-    {
+    } else {
         res.status(401).send('Unauthorized');
     }
 });
 
-app.get('/group',(req, res) =>{
+app.get('/group', (req, res) => {
     const auth = req.header('Authorization');
 
     let token = req.query.token;
 
-    if(token == null)
-    {
+    if (token == null) {
         res.status(401).send('Unauthorized');
         return;
-    }
-    else {
-
+    } else {
         const base64String = token.split('.')[1];
-        const decodedValue = JSON.parse(Buffer.from(base64String,'base64').toString('ascii'));
+        const decodedValue = JSON.parse(Buffer.from(base64String, 'base64').toString('ascii'));
 
         let temp_group = groups;
 
+        let messageRetour = "";
+
         // creation du groupe et ajout du user
         let i = 0;
-        for (const group of groups){
-            if (group.group_name == req.query.group) {
-                temp_group[i].users += decodedValue.local_user;
-                res.status(200).send("Groupe mise à jour");
-            }
-            else if(group.group_name == null){
+        for (const group of groups) {
+            if (temp_group[i].group_name == req.query.group) {
+                temp_group[i].users.splice(temp_group[i].users.length+1, 0 , decodedValue.local_user);
+                messageRetour = "Groupe mise à jour";
+            } else {
                 let ID = 0;
                 for (const group of groups) {
                     ID = group.id;
@@ -156,13 +151,13 @@ app.get('/group',(req, res) =>{
                 let data = {
                     "id": ID,
                     "group_name": req.query.group,
-                    "admin":decodedValue.local_user,
+                    "admin": decodedValue.local_user,
                     "users": [decodedValue.local_user]
                 }
 
-                groups.push(data);
+                temp_group.splice(temp_group.length + 1 , 0, data );
 
-                res.status(200).send('Groupe crée');
+                messageRetour = "Groupe crée";
             }
 
             i++;
@@ -170,37 +165,32 @@ app.get('/group',(req, res) =>{
 
         // supprimer le user de la liste des users
 
-        for(let j = 0; j < temp_group.length; j++){
-            for(let i =0; i < temp_group[j].users.length; i++){
+        for (let j = 0; j < temp_group.length; j++) {
+            for (let i = 0; i < temp_group[j].users.length; i++) {
                 if (temp_group[j].users[i] == decodedValue.local_user) {
-                    temp_group[j].users[i] = null;
+                    temp_group[j].users.splice(i, 1);
                 }
                 if (temp_group[j].admin == decodedValue.local_user) {
                     temp_group[j].admin = null;
                 }
-                let userTab = temp_group[j].users;
-                temp_group[j].users[temp_group[j].users.length] = userTab;
-
             }
-        }
-
-        //supprimer group
-
-        for(const group of groups){
-            if (group.users.length == 0) {
-                temp_group.group[group.id] = null;
+            //supprimer group
+            for (const group of groups) {
+                if (group.users.length == 0) {
+                    temp_group.splice(group.id, 1);
+                }
             }
         }
 
         groups = temp_group;
-
-        console.log(groups);
 
         groups.forEach(function (item, index) {
             fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
                 if (err) return console.log(err);
             });
         });
+
+        res.status(200).send(messageRetour);
     }
 });
 
@@ -217,7 +207,7 @@ app.get('/callback', (req, res) => {
         },
         headers: {
             'Authorization': 'Basic ' +
-                (Buffer.from(local_user.spotify_id + ':' + local_user.spotify_secret ).toString('base64')),
+                (Buffer.from(local_user.spotify_id + ':' + local_user.spotify_secret).toString('base64')),
             'content-type': 'application/x-www-form-urlencoded',
             'accept-encoding': 'null'
         },
