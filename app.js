@@ -6,9 +6,6 @@ const jwt = require('jsonwebtoken');
 const users = require('./users.json');
 let groups = require('./groups.json');
 const axios = require('axios');
-const {json} = require("express");
-const { group } = require('console');
-const { emit } = require('process');
 const redirect_uri = 'http://localhost:8888/callback/';
 
 
@@ -125,38 +122,42 @@ app.get("/auth-url", (req, res) => {
         res.status(401).send('Unauthorized');
     }
 });
+
 app.get('/group',(req, res) =>{
     const auth = req.header('Authorization');
     let Exit = false;
 
     const isBasicAuth = auth && auth.startsWith('Basic ');
-    if (!isBasicAuth) {
+    /*if (!isBasicAuth) {
+        res.status(401).send('Unauthorized');
+        return;
+    }*/
+    let token = req.query.token;
+
+    if(token == null)
+    {
         res.status(401).send('Unauthorized');
         return;
     }
-    
-    // Ajout d'un groupe à un user s'il y n'en n'a pas 
-   
-        let token = req.query.token;
+    else {
+
         const base64String = token.split('.')[1];
         const decodedValue = JSON.parse(Buffer.from(base64String,'base64').toString('ascii'));
 
-        
-        //sup group
-        let temp_group =null;
         for(const group of groups){
             for(let i =0; i < group.users.length ; i++){
                 if (group.users[i] == decodedValue.local_user) {
                     group.users[i] = null;
                 }
             }
-            userTab = group.users;
+            let userTab = group.users;
             group.users.push(userTab);
 
         }
+        let temp_group = null;
         for (const group of groups){
             if (group.group_name == req.query.group) {
-                
+
                 group.users.push(decodedValue.local_user);
                 temp_group = group;
             }
@@ -174,34 +175,44 @@ app.get('/group',(req, res) =>{
                     "admin":decodedValue.local_user,
                     "users": [decodedValue.local_user]
                 }
-        
+
                 groups.push(data);
                 groups.forEach(function (item, index) {
                     fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
                         if (err) return console.log(err);
                     });
                 });
-        
-                res.status(200).send('Groupe cree');
-            
-            
+
+                res.status(200).send('Groupe crée');
+
         }
-        else{
-        //     res.status(200).send("groupe mise à jour");
-        //     groups.forEach(function (item, index) {
-        //     fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
-        //         if (err) return console.log(err);
-        //     });
-        // });
-        
-        //delete group
- 
-        if (req.query.group !== null ) {
-            decodedValue.lo
+        else {
+                 res.status(200).send("Groupe mise à jour");
+                 groups.forEach(function (item, index) {
+                     fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
+                         if (err) return console.log(err);
+                 });
+             });
+
+            //delete group
+
+            if (req.query.group !== null) {
+                for (const group of groups) {
+                    for(let i = 0; i < group.users.length; i++) {
+                        if (group.users[i] == decodedValue.local_user) {
+                            group.users[i] = null;
+                        }
+                        if(group.admin == decodedValue.local_user)
+                        {
+                            group.admin = null;
+                        }
+                    }
+                }
+            }
         }
     }});
-        
-        
+
+
 app.get('/callback', (req, res) => {
     const code = req.query.code || null;
 
