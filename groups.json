@@ -2,7 +2,7 @@
     {
         "id": 0,
         "group_name": "groupe1",
-        "admin": "",
+        "admin": "quentin",
         "users": [
             "user1",
             "user2"
@@ -11,8 +11,9 @@
     {
         "id": 1,
         "group_name": "groupe2",
+        "admin": "quentin",
         "users": [
-            
+
         ]
     },
     {
@@ -36,7 +37,7 @@
         "group_name": "groupe5",
         "admin": "quentin",
         "users": [
-           
+
         ]
     },
     {
@@ -68,7 +69,7 @@
         "group_name": "groupe9",
         "admin": "quentin",
         "users": [
-            
+
         ]
     }
 ]

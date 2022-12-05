@@ -2,10 +2,10 @@ const express = require('express');
 const Crypto = require('crypto');
 const fs = require('fs');
 let querystring = require('querystring');
+const axios = require('axios');
 const jwt = require('jsonwebtoken');
 const users = require('./users.json');
 let groups = require('./groups.json');
-const axios = require('axios');
 const redirect_uri = 'http://localhost:8888/callback/';
 
 
@@ -138,29 +138,13 @@ app.get('/group',(req, res) =>{
         const base64String = token.split('.')[1];
         const decodedValue = JSON.parse(Buffer.from(base64String,'base64').toString('ascii'));
 
-        // supprimer le user de la liste des users
-
-        for(const group of groups){
-            for(let i =0; i < group.users.length ; i++){
-                if (group.users[i] == decodedValue.local_user) {
-                    group.users[i] = null;
-                }
-                if (group.admin == decodedValue.local_user) {
-                    group.admin = null;
-                }
-            }
-            let userTab = group.users;
-            group.users.push(userTab);
-
-        }
-
-        // creation du groupe et ajout du user
-
         let temp_group = groups;
 
+        // creation du groupe et ajout du user
+        let i = 0;
         for (const group of groups){
             if (group.group_name == req.query.group) {
-                temp_group.users += decodedValue.local_user;
+                temp_group[i].users += decodedValue.local_user;
                 res.status(200).send("Groupe mise à jour");
             }
             else if(group.group_name == null){
@@ -180,6 +164,24 @@ app.get('/group',(req, res) =>{
 
                 res.status(200).send('Groupe crée');
             }
+
+            i++;
+        }
+
+        // supprimer le user de la liste des users
+
+        for(let j = 0; j < temp_group.length; j++){
+            for(let i =0; i < temp_group[j].users.length; i++){
+                if (temp_group[j].users[i] == decodedValue.local_user) {
+                    temp_group[j].users[i] = null;
+                }
+                if (temp_group[j].admin == decodedValue.local_user) {
+                    temp_group[j].admin = null;
+                }
+                let userTab = temp_group[j].users;
+                temp_group[j].users[temp_group[j].users.length] = userTab;
+
+            }
         }
 
         //supprimer group
@@ -190,13 +192,17 @@ app.get('/group',(req, res) =>{
             }
         }
 
-        temp_group.forEach(function (item, index) {
-            fs.writeFile('groups.json', JSON.stringify(temp_group), function (err) {
+        groups = temp_group;
+
+        console.log(groups);
+
+        groups.forEach(function (item, index) {
+            fs.writeFile('groups.json', JSON.stringify(groups), function (err) {
                 if (err) return console.log(err);
             });
         });
-
-}});
+    }
+});
 
 
 app.get('/callback', (req, res) => {
